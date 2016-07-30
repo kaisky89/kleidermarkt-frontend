@@ -1,4 +1,5 @@
-var KleidermarktApp = window.KleidermarktApp;
+// APP
+var KleidermarktApp   = window.KleidermarktApp;
 
 ReactDOM.render(
   <KleidermarktApp />,
