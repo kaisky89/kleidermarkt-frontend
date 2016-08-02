@@ -114,6 +114,27 @@ var Timer = React.createClass({
 
 })
 
+var FormField = React.createClass({
+  render: function () {
+    var message = this.props.data.message;
+    if (message) {
+      message = <span className="mdl-textfield__error">{message}</span>
+    };
+
+    var required;
+    if (!this.props.data.required) {
+      required = false;
+    }
+
+    return (
+      <div className="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input required={required} onChange={this.props.handleChange.bind(null, this.props.data.name)} className="mdl-textfield__input" type={this.props.data.type} pattern={this.props.data.pattern} name={this.props.data.name} id={this.props.data.name} />
+        <label className="mdl-textfield__label" htmlFor={this.props.data.name} >{this.props.data.label}</label>{message}
+      </div>
+    );
+  }
+});
+
 var WelcomeSite = React.createClass({
 
   componentDidUpdate: function () {
@@ -277,10 +298,85 @@ var ConditionsSite = React.createClass({
 });
 
 var DataSite = React.createClass({
-  render: function () {
+  getInitialState: function () {
+    return {
+      formFields: [
+        {type: "text", name: "vorname", label: "Vorname"},
+        {type: "text", name: "name", label: "Name", required: true},
+        {type: "text", name: "strasse", label: "Straße", required: true},
+        {type: "text", name: "ort", label: "Ort", required: true},
+        {type: "text", name: "plz", label: "PLZ", pattern: "-?[0-9]{5}?", message: "Keine gültige PLZ", required: true},
+        {type: "text", name: "tel", label: "Telefon", pattern: '-?[0-9 /\\-\\+]+?', message: "Keine gültige Telefonnummer", required: true},
+        {type: "email", name: "email", label: "Email", pattern: '[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$', message: "Keine gültige Email Adresse", required: true}
+      ],
+      userData: {},
+      userDataIsCorrect: false,
+    };
+  },
 
+  handleChange: function (key, e) {
+    var tempUserData = this.state.userData;
+    tempUserData[key] = e.target.value;
+    this.setState({userData: tempUserData});
+    this.checkIfUserDataIsCorrect();
+  },
+
+  checkIfUserDataIsCorrect: function () {
+    this.setState({userDataIsCorrect: true});
+
+    // check, if all Patterns are fine
+    this.state.formFields.forEach(function (formField) {
+      if(formField.pattern) {
+        var pattern = new RegExp(formField.pattern);
+        var str = this.state.userData[formField.name];
+        var res = pattern.test(str);
+        if(!res){
+          this.setState({userDataIsCorrect: false});
+        }
+      }
+
+    }, this)
+
+    // check, if all required fields have content
+    this.state.formFields.forEach(function (formField) {
+      if(formField.required) {
+        var pattern = new RegExp(formField.pattern);
+        if(!this.state.userData[formField.name]){
+          this.setState({userDataIsCorrect: false});
+        }
+      }
+    }, this)
+  },
+
+  render: function() {
+    var formFields = this.state.formFields.map(function(formField){
+      return <FormField data={formField} key={formField.name} handleChange={this.handleChange}/>;
+    }.bind(this));
+    return (
+
+      <div className="mdl-layout mdl-js-layout">
+        <header />
+        <main className="km-layout mdl-layout__content">
+          <div className="km-card mdl-card mdl-shadow--2dp">
+            <div className="km-card__title mdl-card__title">
+              <h2 className="mdl-card__title-text">Deine Daten</h2></div>
+            <div className="mdl-card__supporting-text">
+              <form className="km-form" action="#">
+                {formFields}
+              </form>
+            </div>
+            <div className="km-card__actions mdl-card__actions mdl-card--border">
+              <button className="km-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" disabled={!this.state.userDataIsCorrect} >Nummer sichern</button>
+            </div>
+            <div className="km-card__menu mdl-card__menu">
+              <div className="km-timer"><i className="material-icons">timer</i> Sitzung endet: <span className="km-timer__time"><Timer unixTime={this.props.functions.getReservationTime()} /></span></div>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
   }
-})
+});
 
 var ReactApp = React.createClass({
 
