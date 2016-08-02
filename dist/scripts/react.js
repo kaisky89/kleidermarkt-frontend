@@ -92,13 +92,24 @@ var Timer = React.createClass({
     var today= new Date();
     var s = Date.dateDiff('s', today, otherDay) % 60;
     var m = Date.dateDiff('n', today, otherDay);
+    if (s < 0) {
+      s = 0;
+    }
+    if (m < 0) {
+      m = 0;
+    }
     this.setState({s: s, m: m});
   },
 
   render: function () {
-    return (
-      <span>{this.state.m}m {this.state.s}s</span>
-    );
+
+    var content = <span>{this.state.m}m {this.state.s}s</span>;
+
+    if (this.state.m == 0 && this.state.s == 0) {
+      content = <span>Abgelaufen</span>;
+    }
+
+    return content;
   }
 
 })
@@ -232,6 +243,10 @@ var ConditionsSite = React.createClass({
     return this.state.conditions;
   },
 
+  acceptAndNext: function () {
+    this.props.functions.goTo('DataSite');
+  },
+
   render: function() {
     var conditions = this.state.conditions;
     if (this.state.gotConditions) {
@@ -248,7 +263,7 @@ var ConditionsSite = React.createClass({
                 <h2 className="mdl-card__title-text">Verkäuferinformationen</h2></div>
               <div className="mdl-card__supporting-text">{conditions}</div>
               <div className="km-card__actions mdl-card__actions mdl-card--border">
-                <button className="km-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">Akzeptieren und weiter</button>
+                <button onClick={this.acceptAndNext} className="km-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">Akzeptieren und weiter</button>
               </div>
               <div className="km-card__menu mdl-card__menu">
                 <div className="km-timer"><i className="material-icons">timer</i> Sitzung endet: <span className="km-timer__time">{this.state.sessionTime}</span></div>
@@ -260,6 +275,12 @@ var ConditionsSite = React.createClass({
     );
   }
 });
+
+var DataSite = React.createClass({
+  render: function () {
+
+  }
+})
 
 var ReactApp = React.createClass({
 
@@ -326,6 +347,9 @@ var ReactApp = React.createClass({
         break;
       case "ConditionsSite":
         goToSite = <ConditionsSite apiPoints={apiPoints} options={options} functions={functions} />
+        break;
+      case "DataSite":
+        goToSite = <DataSite apiPoints={apiPoints} options={options} functions={functions} />
         break;
       default:
         goToSite = <WelcomeSite apiPoints={apiPoints} options={options} functions={functions} />
