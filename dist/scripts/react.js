@@ -7,6 +7,10 @@ var apiPoints = {
   reservation: {
     baby: apiRoot+"/baby/reservation.php",
     verkaeufer: apiRoot+"/verkaeufer/reservation.php"
+  },
+  postData: {
+    baby: apiRoot+"/baby/",
+    verkaeufer: apiRoot+"/verkaeufer/"
   }
 };
 
@@ -27,7 +31,7 @@ Date.dateDiff = function(datepart, fromdate, todate) {
   return Math.floor( diff/divideBy[datepart]);
 }
 
-var Spinner = React.createClass({
+var SpinnerModule = React.createClass({
   render: function () {
     return (
       <div style={this.props.styling}>
@@ -49,7 +53,7 @@ var BadgeButtonModule = React.createClass({
 
   render: function () {
     if (this.props.badge == null) {
-      return <Spinner styling={{
+      return <SpinnerModule styling={{
         width: '100px',
         display: 'inline-block'
       }} />;
@@ -72,7 +76,7 @@ var BadgeButtonModule = React.createClass({
 
 });
 
-var Timer = React.createClass({
+var TimerModule = React.createClass({
 
   getInitialState: function () {
     return {s: 0, m: 0};
@@ -114,7 +118,7 @@ var Timer = React.createClass({
 
 })
 
-var FormField = React.createClass({
+var FormFieldModule = React.createClass({
   render: function () {
     var message = this.props.data.message;
     if (message) {
@@ -238,7 +242,7 @@ var ConditionsSite = React.createClass({
       function (data) {
         this.props.functions.setNr(data.nr);
         this.props.functions.setReservationTime(data.reservation);
-        this.setState({sessionTime: <Timer unixTime={this.props.functions.getReservationTime()} />});
+        this.setState({sessionTime: <TimerModule unixTime={this.props.functions.getReservationTime()} />});
       }.bind(this)
     );
 
@@ -246,8 +250,8 @@ var ConditionsSite = React.createClass({
 
   getInitialState: function () {
     return {
-      sessionTime: <Spinner styling={{display: 'inline'}} />,
-      conditions: <Spinner styling={{
+      sessionTime: <SpinnerModule styling={{display: 'inline'}} />,
+      conditions: <SpinnerModule styling={{
         display: 'block',
         marginLeft: 'auto',
         marginRight: 'auto'
@@ -311,6 +315,7 @@ var DataSite = React.createClass({
       ],
       userData: {},
       userDataIsCorrect: false,
+      isLoading: false
     };
   },
 
@@ -348,31 +353,123 @@ var DataSite = React.createClass({
     }, this)
   },
 
+  saveNumber: function () {
+    if (this.state.userDataIsCorrect) {
+      // Show loading Screen
+      this.setState({isLoading: true});
+
+      // Prepare Data
+      var userData = this.state.userData;
+      userData.nr = this.props.functions.getNr();
+
+      // Send Data
+      $.post(
+        this.props.apiPoints.postData[this.props.functions.getNrType()],
+        userData,
+        function (data) {
+          console.log(data);
+          if (data.status == 'error') {
+            alert(data.message);
+            return;
+          }
+          this.props.functions.setUserData(userData);
+          this.props.functions.goTo('FinishSite');
+        }.bind(this)
+      );
+    }
+  },
+
   render: function() {
     var formFields = this.state.formFields.map(function(formField){
-      return <FormField data={formField} key={formField.name} handleChange={this.handleChange}/>;
+      return <FormFieldModule data={formField} key={formField.name} handleChange={this.handleChange}/>;
     }.bind(this));
     return (
 
-      <div className="mdl-layout mdl-js-layout">
-        <header />
-        <main className="km-layout mdl-layout__content">
-          <div className="km-card mdl-card mdl-shadow--2dp">
-            <div className="km-card__title mdl-card__title">
-              <h2 className="mdl-card__title-text">Deine Daten</h2></div>
-            <div className="mdl-card__supporting-text">
-              <form className="km-form" action="#">
-                {formFields}
-              </form>
+      <div>
+        <div className="mdl-layout mdl-js-layout">
+          <header />
+          <main className="km-layout mdl-layout__content">
+            <div className="km-card mdl-card mdl-shadow--2dp">
+              <div className="km-card__title mdl-card__title">
+                <h2 className="mdl-card__title-text">Deine Daten</h2></div>
+              <div className="mdl-card__supporting-text">
+                <form className="km-form" action="#">
+                  {formFields}
+                </form>
+              </div>
+              <div className="km-card__actions mdl-card__actions mdl-card--border">
+                <button onClick={this.saveNumber} className="km-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" disabled={!this.state.userDataIsCorrect} >Nummer sichern</button>
+              </div>
+              <div className="km-card__menu mdl-card__menu">
+                <div className="km-timer"><i className="material-icons">timer</i> Sitzung endet: <span className="km-timer__time"><TimerModule unixTime={this.props.functions.getReservationTime()} /></span></div>
+              </div>
             </div>
-            <div className="km-card__actions mdl-card__actions mdl-card--border">
-              <button className="km-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" disabled={!this.state.userDataIsCorrect} >Nummer sichern</button>
+          </main>
+        </div>
+      </div>
+    );
+  }
+});
+
+var FinishSite = React.createClass({
+  render: function() {
+    return (
+
+      <div>
+        <div className="mdl-layout mdl-js-layout">
+          <header />
+          <main className="km-layout mdl-layout__content">
+            {/* Wide card with share menu button */}
+            <div className="km-card mdl-card mdl-shadow--2dp">
+              <div className="km-card__title mdl-card__title">
+                <h2 className="mdl-card__title-text">Danke: Alles hat geklappt!</h2></div>
+              <div className="mdl-card__supporting-text">
+                <h4 className="km-number-holder">Deine Nummer: <span className="km-number-holder__number">3248239</span></h4>
+                <table className="km-table mdl-data-table mdl-js-data-table">
+                  <thead>
+                    <tr>
+                      <th />
+                      <th>Deine Eingabe</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Vorname</td>
+                      <td>Maxi</td>
+                    </tr>
+                    <tr>
+                      <td>Name</td>
+                      <td>Musterfrau</td>
+                    </tr>
+                    <tr>
+                      <td>Straße</td>
+                      <td>Seßmarstraße 45</td>
+                    </tr>
+                    <tr>
+                      <td>Ort</td>
+                      <td>Gummersbach</td>
+                    </tr>
+                    <tr>
+                      <td>PLZ</td>
+                      <td>51643</td>
+                    </tr>
+                    <tr>
+                      <td>Telefon</td>
+                      <td>022613633</td>
+                    </tr>
+                    <tr>
+                      <td>Email</td>
+                      <td>test@mail.de</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div className="km-card__menu mdl-card__menu">
+                <div className="km-timer"><i className="material-icons">timer</i> Sitzung zuende.</div>
+              </div>
             </div>
-            <div className="km-card__menu mdl-card__menu">
-              <div className="km-timer"><i className="material-icons">timer</i> Sitzung endet: <span className="km-timer__time"><Timer unixTime={this.props.functions.getReservationTime()} /></span></div>
-            </div>
-          </div>
-        </main>
+          </main>
+        </div>
       </div>
     );
   }
@@ -392,7 +489,8 @@ var ReactApp = React.createClass({
       getNr: this.getNr,
       setNr: this.setNr,
       getReservationTime: this.getReservationTime,
-      setReservationTime: this.setReservationTime
+      setReservationTime: this.setReservationTime,
+      setUserData: this.setUserData
     };
   },
 
@@ -406,7 +504,8 @@ var ReactApp = React.createClass({
       currentSite: <WelcomeSite apiPoints={apiPoints} options={options} functions={functions} />,
       nrType: null,
       nr: null,
-      reservationTime: null
+      reservationTime: null,
+      userData: null
     }
   },
 
@@ -434,6 +533,10 @@ var ReactApp = React.createClass({
     return this.state.reservationTime;
   },
 
+  setUserData: function (userData) {
+    this.setState({userData});
+  },
+
   goTo: function (sitename) {
     var goToSite;
     var functions = this.getFunctions();
@@ -447,6 +550,9 @@ var ReactApp = React.createClass({
       case "DataSite":
         goToSite = <DataSite apiPoints={apiPoints} options={options} functions={functions} />
         break;
+        case "FinishSite":
+          goToSite = <FinishSite apiPoints={apiPoints} options={options} functions={functions} />
+          break;
       default:
         goToSite = <WelcomeSite apiPoints={apiPoints} options={options} functions={functions} />
     }
