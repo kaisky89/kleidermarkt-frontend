@@ -311,7 +311,7 @@ var DataSite = React.createClass({
         {type: "text", name: "ort", label: "Ort", required: true},
         {type: "text", name: "plz", label: "PLZ", pattern: "-?[0-9]{5}?", message: "Keine gültige PLZ", required: true},
         {type: "text", name: "tel", label: "Telefon", pattern: '-?[0-9 /\\-\\+]+?', message: "Keine gültige Telefonnummer", required: true},
-        {type: "email", name: "email", label: "Email", pattern: '[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$', message: "Keine gültige Email Adresse", required: true}
+        {type: "email", name: "email", label: "Email", pattern: '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$', message: "Keine gültige Email Adresse", required: true}
       ],
       userData: {},
       userDataIsCorrect: false,
