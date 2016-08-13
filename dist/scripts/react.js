@@ -88,6 +88,25 @@ var BadgeButtonModule = React.createClass({
 
 });
 
+var ButtonModule = React.createClass({
+  mixins: [MaterialDesignMixin],
+
+  render: function () {
+    return (
+        <button
+          onClick={function () {
+            this.props.functions.goTo(this.props.goToSite);
+          }.bind(this)}
+          className="km-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect"
+        >
+          {this.props.name}
+        </button>
+    );
+  }
+
+});
+
+
 var TimerModule = React.createClass({
 
   getInitialState: function () {
@@ -97,6 +116,12 @@ var TimerModule = React.createClass({
   componentDidMount: function () {
     this.updateTime();
     this.timerInterval = setInterval(this.updateTime, 1000);
+  },
+
+  componentDidUpdate: function () {
+    if (this.state.s == 0 && this.state.m == 0) {
+      this.props.functions.goTo('SessionOverSite');
+    }
   },
 
   componentWillUnmount: function () {
@@ -266,7 +291,7 @@ var ConditionsSite = React.createClass({
       function (data) {
         this.props.functions.setNr(data.nr);
         this.props.functions.setReservationTime(data.reservation);
-        this.setState({sessionTime: <TimerModule unixTime={this.props.functions.getReservationTime()} />});
+        this.setState({sessionTime: <TimerModule functions={this.props.functions} unixTime={this.props.functions.getReservationTime()} />});
       }.bind(this)
     );
 
@@ -435,7 +460,7 @@ var DataSite = React.createClass({
                 <button onClick={this.saveNumber} className="km-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" disabled={!this.state.userDataIsCorrect} >Nummer sichern</button>
               </div>
               <div className="km-card__menu mdl-card__menu">
-                <div className="km-timer"><i className="material-icons">timer</i> Sitzung endet: <span className="km-timer__time"><TimerModule unixTime={this.props.functions.getReservationTime()} /></span></div>
+                <div className="km-timer"><i className="material-icons">timer</i> Sitzung endet: <span className="km-timer__time"><TimerModule functions={this.props.functions} unixTime={this.props.functions.getReservationTime()} /></span></div>
               </div>
             </div>
           </main>
@@ -542,6 +567,50 @@ var LoadingSite = React.createClass({
   }
 });
 
+var SessionOverSite = React.createClass({
+  mixins: [MaterialDesignMixin],
+
+  render: function () {
+    return (
+      <div>
+        <div className="mdl-layout mdl-js-layout">
+          <header />
+          <main className="km-layout mdl-layout__content">
+            <div className="km-card mdl-card mdl-shadow--2dp">
+              <div className="km-card__title mdl-card__title">
+                <h2 className="mdl-card__title-text">Sitzung Abgelaufen</h2>
+              </div>
+              <div className="mdl-card__supporting-text">
+                <p>
+                  Leider ist die Zeit für deine Sitzung abgelaufen.
+                </p>
+                <p>
+                  Eine Sitzung ist die Zeit, für die wir eine Verkäufernummer für
+                  dich reservieren. Eine Sitzung ist immer nur 4 Minuten gültig.
+                  In dieser Zeit muss du es geschafft haben, deine Daten einzugeben
+                  und eine Verkäufernummer zu beantragen.
+                </p>
+                <p>
+                  Versuche es doch noch einmal...
+                </p>
+              </div>
+              <div className="km-card__actions mdl-card__actions mdl-card--border">
+                <ButtonModule
+                  name="Neu starten"
+                  functions={this.props.functions}
+                  goToSite="reset"
+                />
+              </div>
+              <div className="mdl-card__menu" />
+            </div>
+          </main>
+        </div>
+      </div>
+    )
+  }
+});
+
+
 var ReactApp = React.createClass({
 
   componentDidUpdate: function () {
@@ -570,7 +639,7 @@ var ReactApp = React.createClass({
   getInitialState: function () {
     var functions = this.getFunctions();
     return {
-      currentSite: <WelcomeSite apiPoints={apiPoints} options={options} functions={functions} />,
+      currentSite: <SessionOverSite apiPoints={apiPoints} options={options} functions={functions} />,
       nrType: null,
       nr: null,
       reservationTime: null,
@@ -628,9 +697,17 @@ var ReactApp = React.createClass({
       case "DataSite":
         goToSite = <DataSite apiPoints={apiPoints} options={options} functions={functions} />
         break;
-        case "FinishSite":
-          goToSite = <FinishSite apiPoints={apiPoints} options={options} functions={functions} />
-          break;
+      case "FinishSite":
+        goToSite = <FinishSite apiPoints={apiPoints} options={options} functions={functions} />
+        break;
+      case "SessionOverSite":
+        goToSite = <SessionOverSite apiPoints={apiPoints} options={options} functions={functions} />
+        break;
+      case "reset":
+        this.setState(this.getInitialState());
+        goToSite = <WelcomeSite apiPoints={apiPoints} options={options} functions={functions} />
+        break;
+
       default:
         goToSite = <WelcomeSite apiPoints={apiPoints} options={options} functions={functions} />
     }
