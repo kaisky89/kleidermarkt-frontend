@@ -259,7 +259,7 @@ var WelcomeSite = React.createClass({
      sadText = (
        <div className="mdl-card__supporting-text">
          Schade, es scheint weder normale Verkaufsnummern noch Babynummern
-         mehr für dich zu geben.
+         mehr für dich zu geben. Vielleicht klappts ja beim Nächsten mal...
        </div>
      );
     }
