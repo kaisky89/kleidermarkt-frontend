@@ -54,14 +54,7 @@ var SpinnerModule = React.createClass({
 });
 
 var BadgeButtonModule = React.createClass({
-
-  componentDidUpdate: function () {
-    componentHandler.upgradeDom();
-  },
-
-  componentDidMount: function () {
-    componentHandler.upgradeDom();
-  },
+  mixins: [MaterialDesignMixin],
 
   render: function () {
     if (this.props.badge == null) {
@@ -69,6 +62,11 @@ var BadgeButtonModule = React.createClass({
         width: '100px',
         display: 'inline-block'
       }} />;
+    }
+
+    var disabled = false;
+    if (this.props.badge == 0) {
+      disabled = true;
     }
 
     return (
@@ -79,6 +77,7 @@ var BadgeButtonModule = React.createClass({
             this.props.functions.goTo(this.props.goToSite);
           }.bind(this)}
           className="km-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect"
+          disabled={disabled}
         >
           {this.props.name}
         </button>
@@ -639,7 +638,7 @@ var ReactApp = React.createClass({
   getInitialState: function () {
     var functions = this.getFunctions();
     return {
-      currentSite: <SessionOverSite apiPoints={apiPoints} options={options} functions={functions} />,
+      currentSite: <WelcomeSite apiPoints={apiPoints} options={options} functions={functions} />,
       nrType: null,
       nr: null,
       reservationTime: null,
