@@ -265,7 +265,8 @@ var ConditionsSite = React.createClass({
     return {
       sessionTime: <SpinnerModule styling={{display: 'inline'}} />,
       conditions: <SpinnerModule styling={{
-        display: 'block',
+        marginTop: 30,
+        marginBottom: 30,
         marginLeft: 'auto',
         marginRight: 'auto'
       }} />,
@@ -288,7 +289,10 @@ var ConditionsSite = React.createClass({
   render: function() {
     var conditions = this.state.conditions;
     if (this.state.gotConditions) {
-      conditions = <div dangerouslySetInnerHTML={this.conditionsRaw()}></div>
+      conditions = (<div
+        className="mdl-card__supporting-text"
+        dangerouslySetInnerHTML={this.conditionsRaw()}
+      />);
     }
     return (
 
@@ -299,7 +303,7 @@ var ConditionsSite = React.createClass({
             <div className="km-card mdl-card mdl-shadow--2dp">
               <div className="km-card__title mdl-card__title">
                 <h2 className="mdl-card__title-text">Verkäuferinformationen</h2></div>
-              <div className="mdl-card__supporting-text">{conditions}</div>
+              {conditions}
               <div className="km-card__actions mdl-card__actions mdl-card--border">
                 <button onClick={this.acceptAndNext} className="km-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">Akzeptieren und weiter</button>
               </div>
