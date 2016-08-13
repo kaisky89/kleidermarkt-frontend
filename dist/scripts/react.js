@@ -305,13 +305,13 @@ var DataSite = React.createClass({
   getInitialState: function () {
     return {
       formFields: [
-        {type: "text", name: "vorname", label: "Vorname"},
+        {type: "text", name: "vorname", label: "Vorname", required: true},
         {type: "text", name: "name", label: "Name", required: true},
         {type: "text", name: "strasse", label: "Straße", required: true},
         {type: "text", name: "ort", label: "Ort", required: true},
         {type: "text", name: "plz", label: "PLZ", pattern: "-?[0-9]{5}?", message: "Keine gültige PLZ", required: true},
         {type: "text", name: "tel", label: "Telefon", pattern: '-?[0-9 /\\-\\+]+?', message: "Keine gültige Telefonnummer", required: true},
-        {type: "email", name: "email", label: "Email", pattern: '[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$', message: "Keine gültige Email Adresse", required: true}
+        {type: "email", name: "email", label: "Email", pattern: '[A-Za-z0-9._%+-]+@[A-za-z0-9.-]+\.[A-za-z]{2,4}$', message: "Keine gültige Email Adresse", required: true}
       ],
       userData: {},
       userDataIsCorrect: false,
