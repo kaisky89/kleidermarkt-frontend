@@ -131,6 +131,16 @@ var TimerModule = React.createClass({
 
 var FormFieldModule = React.createClass({
   render: function () {
+
+    if (this.props.data.type == "checkbox") {
+      return (
+        <label htmlFor={this.props.data.name} className="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect">
+          <input onChange={this.props.handleChange.bind(null, this.props.data.name)} type="checkbox" id={this.props.data.name} name={this.props.data.name} className="mdl-checkbox__input" />
+          <span className="mdl-checkbox__label">{this.props.data.label}</span>
+        </label>
+      );
+    }
+
     var message = this.props.data.message;
     if (message) {
       message = <span className="mdl-textfield__error">{message}</span>
@@ -328,7 +338,8 @@ var DataSite = React.createClass({
         {type: "text", name: "ort", label: "Ort", required: true},
         {type: "text", name: "plz", label: "PLZ", pattern: "-?[0-9]{5}?", message: "Keine gültige PLZ", required: true},
         {type: "text", name: "tel", label: "Telefon", pattern: '-?[0-9 /\\-\\+]+?', message: "Keine gültige Telefonnummer", required: true},
-        {type: "email", name: "email", label: "Email", pattern: '[A-Za-z0-9._%+-]+@[A-za-z0-9.-]+\.[A-za-z]{2,4}$', message: "Keine gültige Email Adresse", required: true}
+        {type: "email", name: "email", label: "Email", pattern: '[A-Za-z0-9._%+-]+@[A-za-z0-9.-]+\.[A-za-z]{2,4}$', message: "Keine gültige Email Adresse", required: true},
+        {type: "checkbox", name: "neu", label: "Ich mache zum ersten mal mit"}
       ],
       userData: {},
       userDataIsCorrect: false,
@@ -339,6 +350,11 @@ var DataSite = React.createClass({
   handleChange: function (key, e) {
     var tempUserData = this.state.userData;
     tempUserData[key] = e.target.value;
+
+    if(e.target.type == "checkbox") {
+      tempUserData[key] = !$(e.target).parent().hasClass('is-checked');
+    }
+
     this.setState({userData: tempUserData});
     this.checkIfUserDataIsCorrect();
   },
