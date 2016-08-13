@@ -359,8 +359,11 @@ var ConditionsSite = React.createClass({
         dangerouslySetInnerHTML={this.conditionsRaw()}
       />);
     }
-    return (
 
+    var disabled = !this.state.gotConditions;
+
+
+    return (
       <div>
         <div className="mdl-layout mdl-js-layout">
           <header />
@@ -370,7 +373,7 @@ var ConditionsSite = React.createClass({
                 <h2 className="mdl-card__title-text">Verkäuferinformationen</h2></div>
               {conditions}
               <div className="km-card__actions mdl-card__actions mdl-card--border">
-                <button onClick={this.acceptAndNext} className="km-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">Akzeptieren und weiter</button>
+                <button disabled={disabled} onClick={this.acceptAndNext} className="km-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">Akzeptieren und weiter</button>
               </div>
               <div className="km-card__menu mdl-card__menu">
                 <div className="km-timer"><i className="material-icons">timer</i> Sitzung endet: <span className="km-timer__time">{this.state.sessionTime}</span></div>
