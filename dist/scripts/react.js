@@ -447,7 +447,7 @@ var DataSite = React.createClass({
   saveNumber: function () {
     if (this.state.userDataIsCorrect) {
       // Show loading Screen
-      this.setState({isLoading: true});
+      this.props.functions.setLoading(true);
 
       // Prepare Data
       var userData = this.state.userData;
@@ -459,6 +459,7 @@ var DataSite = React.createClass({
         userData,
         function (data) {
           console.log(data);
+          this.props.functions.setLoading(false);
           if (data.status == 'error') {
             alert(data.message);
             return;
