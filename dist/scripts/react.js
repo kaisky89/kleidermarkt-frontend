@@ -16,7 +16,8 @@ var apiPoints = {
 };
 
 var options = {
-  ajaxPullTime: 5000
+  ajaxPullTime: 5000,
+  supportEmail: 'verkaufsnummer@kleidermarkt-gummersbach.de'
 };
 
 // datepart: 'y', 'm', 'w', 'd', 'h', 'n', 's'
@@ -446,18 +447,18 @@ var DataSite = React.createClass({
 
 var FinishSite = React.createClass({
   render: function() {
+    var userData = this.props.functions.getUserData();
     return (
 
       <div>
         <div className="mdl-layout mdl-js-layout">
           <header />
           <main className="km-layout mdl-layout__content">
-            {/* Wide card with share menu button */}
             <div className="km-card mdl-card mdl-shadow--2dp">
               <div className="km-card__title mdl-card__title">
                 <h2 className="mdl-card__title-text">Danke: Alles hat geklappt!</h2></div>
               <div className="mdl-card__supporting-text">
-                <h4 className="km-number-holder">Deine Nummer: <span className="km-number-holder__number">3248239</span></h4>
+                <h4 className="km-number-holder">Deine Nummer: <span className="km-number-holder__number">{userData.nr}</span></h4>
                 <table className="km-table mdl-data-table mdl-js-data-table">
                   <thead>
                     <tr>
@@ -468,37 +469,40 @@ var FinishSite = React.createClass({
                   <tbody>
                     <tr>
                       <td>Vorname</td>
-                      <td>Maxi</td>
+                      <td>{userData.vorname}</td>
                     </tr>
                     <tr>
                       <td>Name</td>
-                      <td>Musterfrau</td>
+                      <td>{userData.name}</td>
                     </tr>
                     <tr>
                       <td>Straße</td>
-                      <td>Seßmarstraße 45</td>
+                      <td>{userData.strasse}</td>
                     </tr>
                     <tr>
                       <td>Ort</td>
-                      <td>Gummersbach</td>
+                      <td>{userData.ort}</td>
                     </tr>
                     <tr>
                       <td>PLZ</td>
-                      <td>51643</td>
+                      <td>{userData.plz}</td>
                     </tr>
                     <tr>
                       <td>Telefon</td>
-                      <td>022613633</td>
+                      <td>{userData.tel}</td>
                     </tr>
                     <tr>
                       <td>Email</td>
-                      <td>test@mail.de</td>
+                      <td>{userData.email}</td>
                     </tr>
                   </tbody>
                 </table>
-              </div>
-              <div className="km-card__menu mdl-card__menu">
-                <div className="km-timer"><i className="material-icons">timer</i> Sitzung zuende.</div>
+                <p>
+                  Bitte beachte: Du bekommst eine email an {userData.email},
+                  wo alle wichtigen Daten noch einmal enthalten sind. Falls du
+                  keine email bekommst, überprüfe dein Spam Filter. Wenn alles
+                  nicht hilft, wende dich an <a href={'mailto:' + this.props.options.supportEmail}>{this.props.options.supportEmail}</a>.
+                </p>
               </div>
             </div>
           </main>
@@ -554,6 +558,7 @@ var ReactApp = React.createClass({
       getReservationTime: this.getReservationTime,
       setReservationTime: this.setReservationTime,
       setUserData: this.setUserData,
+      getUserData: this.getUserData,
       setLoading: this.setLoading
     };
   },
@@ -566,7 +571,6 @@ var ReactApp = React.createClass({
     var functions = this.getFunctions();
     return {
       currentSite: <WelcomeSite apiPoints={apiPoints} options={options} functions={functions} />,
-      // currentSite: <LoadingSite />,
       nrType: null,
       nr: null,
       reservationTime: null,
@@ -601,6 +605,10 @@ var ReactApp = React.createClass({
 
   setUserData: function (userData) {
     this.setState({userData});
+  },
+
+  getUserData: function (userData) {
+    return this.state.userData;
   },
 
   setLoading: function (isLoading) {
