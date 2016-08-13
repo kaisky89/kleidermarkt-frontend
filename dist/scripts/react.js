@@ -4,6 +4,7 @@ var apiPoints = {
   babySum: apiRoot+"/baby/free-sum.php",
   verkaeuferSum: apiRoot+"/verkaeufer/free-sum.php",
   conditions: apiRoot+"/data/conditions.php",
+  introText: apiRoot+"/data/intro.php",
   reservation: {
     baby: apiRoot+"/baby/reservation.php",
     verkaeufer: apiRoot+"/verkaeufer/reservation.php"
@@ -29,6 +30,16 @@ Date.dateDiff = function(datepart, fromdate, todate) {
                   s:1000 };
 
   return Math.floor( diff/divideBy[datepart]);
+}
+
+var MaterialDesignMixin = {
+  componentDidMount: function () {
+    componentHandler.upgradeDom();
+  },
+
+  componentDidUpdate: function () {
+    componentHandler.upgradeDom();
+  }
 }
 
 var SpinnerModule = React.createClass({
@@ -140,10 +151,7 @@ var FormFieldModule = React.createClass({
 });
 
 var WelcomeSite = React.createClass({
-
-  componentDidUpdate: function () {
-    componentHandler.upgradeDom();
-  },
+  mixins: [MaterialDesignMixin],
 
   componentWillUnmount: function () {
     clearInterval(this.timerBaby);
@@ -151,7 +159,15 @@ var WelcomeSite = React.createClass({
   },
 
   componentDidMount: function () {
-    componentHandler.upgradeDom();
+
+    // Get Data for the IntroText
+    $.get(this.props.apiPoints.introText, function(data){
+      this.setState({
+        introText: <div className="mdl-card__supporting-text" dangerouslySetInnerHTML={{__html: data}} />
+      });
+    }.bind(this));
+
+    // Get Data for the Badges
     this.refreshBaby();
     this.refreshVerkaeufer();
 
@@ -178,7 +194,8 @@ var WelcomeSite = React.createClass({
   getInitialState: function () {
     return {
       "verkaeufer": null,
-      "baby": null
+      "baby": null,
+      introText: <SpinnerModule styling={{marginTop: 30, marginBottom: 30, marginLeft: 'auto', marginRight: 'auto'}} />
     };
   },
 
@@ -192,7 +209,7 @@ var WelcomeSite = React.createClass({
             <div className="km-card mdl-card mdl-shadow--2dp">
               <div className="km-card__title mdl-card__title">
                 <h2 className="mdl-card__title-text">Willkommen</h2></div>
-              <div className="mdl-card__supporting-text">Diese kleine Website soll dir helfen, ohne große Umstände und besetzte Telefonleitungen deine Verkäufernummer für den Kinderkleidermarkt in Gummersbach zu ziehen.</div>
+              {this.state.introText}
               <div className="km-card__actions mdl-card__actions mdl-card--border">
                 <BadgeButtonModule
                   name="Verkäufernummer"
@@ -220,13 +237,9 @@ var WelcomeSite = React.createClass({
 });
 
 var ConditionsSite = React.createClass({
-
-  componentDidUpdate: function () {
-    componentHandler.upgradeDom();
-  },
+  mixins: [MaterialDesignMixin],
 
   componentDidMount: function () {
-    componentHandler.upgradeDom();
 
     // get Conditions
     $.get(this.props.apiPoints.conditions, function(data){
@@ -475,6 +488,36 @@ var FinishSite = React.createClass({
   }
 });
 
+var LoadingSite = React.createClass({
+  mixins: [MaterialDesignMixin],
+
+  render: function () {
+    return (
+      <div>
+        <div className="mdl-layout mdl-js-layout">
+          <header />
+          <main className="km-layout mdl-layout__content">
+            <div className="km-card mdl-card mdl-shadow--2dp">
+              <div className="km-card__title mdl-card__title">
+                <h2 className="mdl-card__title-text"></h2>
+              </div>
+              <SpinnerModule
+                styling={{
+                  marginLeft: 'auto',
+                  marginRight: 'auto',
+                  marginTop: 30,
+                  marginBottom: 30
+                }}
+              />
+              <div className="mdl-card__menu" />
+            </div>
+          </main>
+        </div>
+      </div>
+    )
+  }
+});
+
 var ReactApp = React.createClass({
 
   componentDidUpdate: function () {
@@ -490,7 +533,8 @@ var ReactApp = React.createClass({
       setNr: this.setNr,
       getReservationTime: this.getReservationTime,
       setReservationTime: this.setReservationTime,
-      setUserData: this.setUserData
+      setUserData: this.setUserData,
+      setLoading: this.setLoading
     };
   },
 
@@ -502,10 +546,12 @@ var ReactApp = React.createClass({
     var functions = this.getFunctions();
     return {
       currentSite: <WelcomeSite apiPoints={apiPoints} options={options} functions={functions} />,
+      // currentSite: <LoadingSite />,
       nrType: null,
       nr: null,
       reservationTime: null,
-      userData: null
+      userData: null,
+      isLoading: false
     }
   },
 
@@ -537,6 +583,10 @@ var ReactApp = React.createClass({
     this.setState({userData});
   },
 
+  setLoading: function (isLoading) {
+    this.setState({isLoading});
+  },
+
   goTo: function (sitename) {
     var goToSite;
     var functions = this.getFunctions();
@@ -564,9 +614,15 @@ var ReactApp = React.createClass({
   },
 
   render: function () {
+    var siteToRender = this.state.currentSite;
+
+    if (this.state.isLoading) {
+      siteToRender = <LoadingSite />
+    }
+
     return (
       <div id="my-react-root">
-        {this.state.currentSite}
+        {siteToRender}
       </div>
     );
   }
