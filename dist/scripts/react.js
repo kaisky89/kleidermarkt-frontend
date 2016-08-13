@@ -322,7 +322,12 @@ var ConditionsSite = React.createClass({
         this.props.functions.setReservationTime(data.reservation);
         this.setState({sessionTime: <TimerModule functions={this.props.functions} unixTime={this.props.functions.getReservationTime()} />});
       }.bind(this)
-    );
+    ).fail(function (data) {
+      if (data.responseText == "NO_RESERVATION_AVAILABLE") {
+        this.props.functions.goTo('NoReservationSite');
+      }
+    }.bind(this));
+
 
   },
 
@@ -643,6 +648,47 @@ var SessionOverSite = React.createClass({
   }
 });
 
+var NoReservationSite = React.createClass({
+  mixins: [MaterialDesignMixin],
+
+  render: function () {
+    return (
+      <div>
+        <div className="mdl-layout mdl-js-layout">
+          <header />
+          <main className="km-layout mdl-layout__content">
+            <div className="km-card mdl-card mdl-shadow--2dp">
+              <div className="km-card__title mdl-card__title">
+                <h2 className="mdl-card__title-text">Keine Nummer mehr frei</h2>
+              </div>
+              <div className="mdl-card__supporting-text">
+                <p>
+                  Leider gibt es für deine Anfrage keine freien Nummern mehr.
+                </p>
+                <p>
+                  Da war hat dir wohl gerade jemand die letzte Nummer vor der Nase
+                  weggeschnappt.
+                </p>
+                <p>
+                  Versuche es doch noch einmal...
+                </p>
+              </div>
+              <div className="km-card__actions mdl-card__actions mdl-card--border">
+                <ButtonModule
+                  name="Neu starten"
+                  functions={this.props.functions}
+                  goToSite="reset"
+                />
+              </div>
+              <div className="mdl-card__menu" />
+            </div>
+          </main>
+        </div>
+      </div>
+    )
+  }
+});
+
 
 var ReactApp = React.createClass({
 
@@ -735,6 +781,9 @@ var ReactApp = React.createClass({
         break;
       case "SessionOverSite":
         goToSite = <SessionOverSite apiPoints={apiPoints} options={options} functions={functions} />
+        break;
+      case "NoReservationSite":
+        goToSite = <NoReservationSite apiPoints={apiPoints} options={options} functions={functions} />
         break;
       case "reset":
         this.setState(this.getInitialState());
