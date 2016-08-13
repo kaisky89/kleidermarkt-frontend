@@ -235,6 +235,35 @@ var WelcomeSite = React.createClass({
   },
 
   render: function() {
+    var sadText;
+    if (this.state.baby == 0 && this.state.verkaeufer > 0) {
+     sadText = (
+       <div className="mdl-card__supporting-text">
+         Schade, es scheint keine Babynummer mehr für dich zu geben.
+         Du kannst aber gerne einfach eine Verkäufernummer nehmen, damit lassen
+         sich genau so gut auch Babysachen verkaufen.
+       </div>
+     );
+    }
+
+    if (this.state.baby > 0 && this.state.verkaeufer == 0) {
+     sadText = (
+       <div className="mdl-card__supporting-text">
+         Schade, es scheint keine Verkäufernummer mehr für dich zu geben.
+         Vielleicht kannst du aber etwas mit einer Babynummer anfangen?
+       </div>
+     );
+    }
+
+    if (this.state.baby == 0 && this.state.verkaeufer == 0) {
+     sadText = (
+       <div className="mdl-card__supporting-text">
+         Schade, es scheint weder normale Verkaufsnummern noch Babynummern
+         mehr für dich zu geben.
+       </div>
+     );
+    }
+
     return (
 
       <div>
@@ -261,6 +290,7 @@ var WelcomeSite = React.createClass({
                   nrType="baby"
                 />
               </div>
+              {sadText}
               <div className="mdl-card__menu" />
             </div>
           </main>
