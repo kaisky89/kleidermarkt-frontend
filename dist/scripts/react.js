@@ -17,7 +17,8 @@ var apiPoints = {
 
 var options = {
   ajaxPullTime: 5000,
-  supportEmail: 'verkaufsnummer@kleidermarkt-gummersbach.de'
+  supportEmail: 'verkaufsnummer@kleidermarkt-gummersbach.de',
+  reservationTime: 240,
 };
 
 // datepart: 'y', 'm', 'w', 'd', 'h', 'n', 's'
@@ -319,7 +320,7 @@ var ConditionsSite = React.createClass({
       this.props.apiPoints.reservation[this.props.functions.getNrType()],
       function (data) {
         this.props.functions.setNr(data.nr);
-        this.props.functions.setReservationTime(data.reservation);
+        this.props.functions.setReservationTime(Math.round(new Date().getTime()/1000) + options.reservationTime);
         this.setState({sessionTime: <TimerModule functions={this.props.functions} unixTime={this.props.functions.getReservationTime()} />});
       }.bind(this)
     ).fail(function (data) {
